@@ -5,15 +5,6 @@
   --rule: #e4e4e4;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111;
-    --fg: #eee;
-    --muted: #8a8a8a;
-    --rule: #2a2a2a;
-  }
-}
-
 * { box-sizing: border-box; }
 
 html { background: var(--bg); }
