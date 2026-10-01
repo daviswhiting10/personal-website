@@ -1,0 +1,68 @@
+---
+import LibraryLayout from '../../layouts/LibraryLayout.astro';
+import EssayCover from '../../components/EssayCover.astro';
+import VariableMark from '../../components/VariableMark.astro';
+import { getCollection } from 'astro:content';
+import { SERIES } from '../../lib/series';
+
+const all = await getCollection('essays');
+const pillars = ['truth', 'beauty', 'goodness'] as const;
+const bySeries = pillars.map((key) => ({
+  key,
+  ...SERIES[key],
+  essays: all
+    .filter((e) => e.data.series === key)
+    .map((e) => e.data)
+    .sort((a, b) => (a.seriesOrder ?? a.number) - (b.seriesOrder ?? b.number)),
+}));
+---
+<LibraryLayout title="Series — The Independent Variable">
+  {bySeries.map((pillar) => (
+    <section class="pillar">
+      <div class="band" style={`background: var(--${pillar.key}); color: var(--${pillar.key}-ink);`}>
+        <div class="container band-inner">
+          <VariableMark series={pillar.key} size={64} color={`var(--${pillar.key}-ink)`} />
+          <h2>{pillar.label}</h2>
+          <p class="description">{pillar.description}</p>
+        </div>
+      </div>
+      <div class="row-wrap container">
+        {pillar.essays.length > 0 ? (
+          <div class="row">
+            {pillar.essays.map((essay) => (
+              <div class="row-item">
+                <EssayCover slug={essay.slug} number={essay.number} title={essay.title} series={essay.series} date={essay.date} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="mono empty">No essays in this series yet.</p>
+        )}
+      </div>
+    </section>
+  ))}
+</LibraryLayout>
+
+<style>
+  .band { padding-block: var(--space-7); min-height: 30vh; display: flex; align-items: center; }
+  .band-inner { display: flex; flex-direction: column; gap: var(--space-4); }
+  .band h2 { font-size: var(--step-3); }
+  .description { font-family: var(--font-text); max-width: 56ch; opacity: 0.85; }
+
+  .row-wrap { padding-block: var(--space-6); }
+  .row {
+    display: flex;
+    gap: var(--space-6);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-4);
+    -webkit-overflow-scrolling: touch;
+  }
+  .row-item {
+    flex: 0 0 200px;
+    scroll-snap-align: start;
+  }
+  .empty { color: var(--ink-faint); padding-block: var(--space-4); }
+
+  .pillar + .pillar { border-top: 1px solid var(--rule); }
+</style>

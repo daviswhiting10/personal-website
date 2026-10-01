@@ -1,0 +1,35 @@
+---
+interface Props {
+  series: 'truth' | 'beauty' | 'goodness' | 'standalone';
+  size?: number;
+  color?: string;
+}
+const { series, size = 44, color = 'currentColor' } = Astro.props;
+---
+{series === 'standalone' ? (
+  <span
+    aria-hidden="true"
+    style={`font-family: var(--font-display); font-style: italic; font-size: ${size}px; line-height: 1; color: ${color}; display: inline-block;`}
+  >x</span>
+) : (
+  <svg aria-hidden="true" width={size} height={size} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {series === 'truth' && (
+      <>
+        <circle cx="22" cy="22" r="14" stroke={color} stroke-width="1.25" />
+        <line x1="22" y1="4" x2="22" y2="40" stroke={color} stroke-width="1.25" />
+      </>
+    )}
+    {series === 'beauty' && (
+      <>
+        <circle cx="17" cy="22" r="12" stroke={color} stroke-width="1.25" />
+        <circle cx="27" cy="22" r="12" stroke={color} stroke-width="1.25" />
+      </>
+    )}
+    {series === 'goodness' && (
+      <>
+        <path d="M22 6 L37 36 L7 36 Z" stroke={color} stroke-width="1.25" stroke-linejoin="round" />
+        <line x1="12" y1="28" x2="32" y2="28" stroke={color} stroke-width="1.25" />
+      </>
+    )}
+  </svg>
+)}

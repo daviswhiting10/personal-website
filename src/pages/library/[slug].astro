@@ -1,0 +1,188 @@
+---
+import LibraryLayout from '../../layouts/LibraryLayout.astro';
+import VariableMark from '../../components/VariableMark.astro';
+import EssayCover from '../../components/EssayCover.astro';
+import { getCollection, render } from 'astro:content';
+import { SERIES, readingMinutes } from '../../lib/series';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('essays');
+  return entries.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const essay = entry.data;
+const minutes = readingMinutes(entry.body ?? '');
+const seriesLabel = SERIES[essay.series].label;
+
+const all = await getCollection('essays');
+const readingOrder = all
+  .slice()
+  .sort((a, b) => {
+    if (a.data.series === b.data.series) {
+      return (a.data.seriesOrder ?? a.data.number) - (b.data.seriesOrder ?? b.data.number);
+    }
+    return a.data.number - b.data.number;
+  });
+const idx = readingOrder.findIndex((e) => e.data.slug === essay.slug);
+const next = readingOrder[(idx + 1) % readingOrder.length]?.data;
+
+const dateLabel = new Date(essay.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<LibraryLayout title={`${essay.title} — The Independent Variable`} description={essay.dek}>
+  <div class="progress-bar" id="progress-bar" style={`--series-color: var(--${essay.series})`} aria-hidden="true"></div>
+
+  <header class="essay-header" style={`--series: var(--${essay.series}); --series-ink: var(--${essay.series}-ink);`} transition:name={`cover-${essay.slug}`}>
+    <div class="essay-header-inner container">
+      <p class="mono header-meta">No. {String(essay.number).padStart(2, '0')} — {seriesLabel.toUpperCase()} — {minutes} MIN READ</p>
+      <h1 class="essay-title" transition:name={`cover-title-${essay.slug}`}>{essay.title}</h1>
+      <p class="essay-dek">{essay.dek}</p>
+    </div>
+    <div class="header-mark" aria-hidden="true">
+      <VariableMark series={essay.series} size={96} color="var(--series-ink)" />
+    </div>
+  </header>
+
+  <article class="prose container">
+    <Content />
+  </article>
+
+  <section class="colophon container mono">
+    <p>Written by Davis Whiting · Published {dateLabel} · Series: {seriesLabel}</p>
+    <a class="substack-link" href={essay.substackUrl} target="_blank" rel="noopener">Read on Substack ↗</a>
+  </section>
+
+  {next && (
+    <section class="next-up container">
+      <p class="mono next-label">Next in the series</p>
+      <a class="next-card" href={`/library/${next.slug}`}>
+        <EssayCover slug={next.slug} number={next.number} title={next.title} series={next.series} date={next.date} small />
+        <span class="next-title">{next.title}</span>
+      </a>
+    </section>
+  )}
+</LibraryLayout>
+
+<style>
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: var(--series-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    z-index: 60;
+    animation: progress-scroll linear;
+    animation-timeline: scroll(root);
+  }
+  @keyframes progress-scroll {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  .essay-header {
+    position: relative;
+    background: var(--series);
+    color: var(--series-ink);
+    height: 44vh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+  @media (min-width: 1025px) { .essay-header { height: 56vh; } }
+
+  .essay-header-inner { padding-bottom: var(--space-8); max-width: 60ch; }
+  .header-meta { color: color-mix(in oklab, var(--series-ink) 75%, transparent); margin-bottom: var(--space-4); }
+  .essay-title { font-size: var(--step-4); max-width: 18ch; }
+  .essay-dek {
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: color-mix(in oklab, var(--series-ink) 80%, transparent);
+    margin-top: var(--space-4);
+    max-width: 48ch;
+  }
+  .header-mark {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--gutter);
+    opacity: 0.5;
+  }
+
+  .prose {
+    max-width: 66ch;
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-7);
+  }
+  .prose :global(p) { margin: 0 0 var(--space-5); }
+  .prose :global(p:first-of-type) {
+    font-size: var(--step-1);
+  }
+  .prose :global(p:first-of-type::first-letter) {
+    font-family: var(--font-display);
+    font-size: 4.2em;
+    float: left;
+    line-height: 0.85;
+    padding-right: var(--space-2);
+    color: var(--ink);
+  }
+  .prose :global(h2) {
+    font-size: var(--step-2);
+    margin: var(--space-7) 0 var(--space-4);
+  }
+  .prose :global(blockquote) {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-2);
+    border-top: 1px solid var(--rule);
+    padding-top: var(--space-4);
+    margin: var(--space-7) 0;
+  }
+  .prose :global(hr) {
+    border: none;
+    text-align: center;
+    margin: var(--space-7) 0;
+  }
+
+  .colophon {
+    border-top: 1px solid var(--rule);
+    padding-block: var(--space-6);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+  .substack-link { color: var(--accent); }
+
+  .next-up { padding-bottom: var(--space-9); }
+  .next-label { margin-bottom: var(--space-4); }
+  .next-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+  .next-title { font-family: var(--font-display); font-size: var(--step-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progress-bar { animation: none; transform: scaleX(1); }
+  }
+</style>
+
+<script>
+  const bar = document.getElementById('progress-bar');
+  if (bar && !CSS.supports('animation-timeline: scroll()')) {
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const scrolled = doc.scrollTop / Math.max(1, doc.scrollHeight - doc.clientHeight);
+      bar.style.transform = `scaleX(${Math.min(1, Math.max(0, scrolled))})`;
+    };
+    document.addEventListener('scroll', () => requestAnimationFrame(onScroll), { passive: true });
+    onScroll();
+  }
+</script>

@@ -1,0 +1,147 @@
+---
+import LibraryLayout from '../../layouts/LibraryLayout.astro';
+import EssayCover from '../../components/EssayCover.astro';
+import { getCollection } from 'astro:content';
+import { readingMinutes } from '../../lib/series';
+
+const entries = await getCollection('essays');
+const essays = entries
+  .map((e) => ({ ...e.data, minutes: readingMinutes(e.body ?? '') }))
+  .sort((a, b) => +new Date(b.date) - +new Date(a.date));
+---
+<LibraryLayout title="Library — The Independent Variable" description="Essays toward a life fully lived.">
+  <section class="hero container">
+    <p class="mono kicker reveal" style="--delay: 0ms">VOL. I — ESSAYS ON WHAT MAKES A MAN FULLY ALIVE</p>
+    <h1 class="hero-title reveal" style="--delay: 80ms">Essays toward a life fully lived.</h1>
+    <p class="hero-dek reveal" style="--delay: 160ms">Notes from an ongoing project on what it means for a man to be most fully alive — Truth, Beauty, and Goodness, worked out one essay at a time.</p>
+
+    <div class="chips mono" role="group" aria-label="Filter by series">
+      <button class="chip" data-series="all" aria-pressed="true" type="button">All</button>
+      <button class="chip" data-series="truth" aria-pressed="false" type="button"><span class="dot" style="background:var(--truth)"></span>Truth</button>
+      <button class="chip" data-series="beauty" aria-pressed="false" type="button"><span class="dot" style="background:var(--beauty)"></span>Beauty</button>
+      <button class="chip" data-series="goodness" aria-pressed="false" type="button"><span class="dot" style="background:var(--goodness)"></span>Goodness</button>
+      <button class="chip" data-series="standalone" aria-pressed="false" type="button"><span class="dot" style="background:var(--standalone)"></span>Standalone</button>
+    </div>
+  </section>
+
+  <section class="shelf-wrap container">
+    <div class="sort-row mono">
+      <button id="sort-toggle" type="button">Sort: Newest first</button>
+    </div>
+    <div class="shelf-row reveal" id="shelf" style="--delay: 280ms">
+      {essays.map((essay) => (
+        <div class="shelf-item" data-series={essay.series}>
+          <EssayCover slug={essay.slug} number={essay.number} title={essay.title} series={essay.series} date={essay.date} />
+          <p class="mono meta">No. {String(essay.number).padStart(2, '0')} · {essay.minutes} MIN</p>
+          <p class="mono meta faint">{new Date(essay.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+        </div>
+      ))}
+    </div>
+    <div class="shelf-line" aria-hidden="true"></div>
+  </section>
+</LibraryLayout>
+
+<style>
+  .hero { padding-top: var(--space-9); padding-bottom: var(--space-7); }
+  .kicker { margin-bottom: var(--space-4); }
+  .hero-title { font-size: var(--step-4); max-width: 20ch; }
+  .hero-dek {
+    font-family: var(--font-text);
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    max-width: 48ch;
+    margin-top: var(--space-5);
+  }
+
+  .chips {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-7);
+    flex-wrap: wrap;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: var(--space-2) var(--space-4);
+    cursor: pointer;
+    color: var(--ink-faint);
+  }
+  .chip[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+  .shelf-wrap { padding-bottom: var(--space-9); }
+  .sort-row { display: flex; justify-content: flex-end; margin-bottom: var(--space-5); }
+  .sort-row button { background: none; border: none; cursor: pointer; color: var(--ink-faint); }
+
+  .shelf-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    column-gap: var(--space-6);
+    row-gap: var(--space-8);
+  }
+  @media (max-width: 640px) { .shelf-row { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 641px) and (max-width: 1024px) { .shelf-row { grid-template-columns: repeat(3, 1fr); } }
+
+  .shelf-line {
+    height: 6px;
+    background: var(--paper-sunk);
+    border-top: 1px solid var(--rule);
+    margin-top: calc(-1 * var(--space-8) + 12px);
+  }
+
+  .shelf-item { display: flex; flex-direction: column; }
+  .meta { margin-top: var(--space-3); }
+  .meta.faint { color: var(--ink-faint); margin-top: var(--space-1); }
+
+  .shelf-item[hidden] { display: none; }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: reveal-in var(--dur-3) var(--ease-out) forwards;
+    animation-delay: var(--delay, 0ms);
+  }
+  @keyframes reveal-in {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { animation: none; opacity: 1; transform: none; }
+  }
+</style>
+
+<script>
+  const chips = document.querySelectorAll<HTMLButtonElement>('.chip');
+  const items = document.querySelectorAll<HTMLElement>('.shelf-item');
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      chips.forEach((c) => c.setAttribute('aria-pressed', 'false'));
+      chip.setAttribute('aria-pressed', 'true');
+      const series = chip.dataset.series;
+      items.forEach((item) => {
+        const match = series === 'all' || item.dataset.series === series;
+        item.hidden = !match;
+      });
+    });
+  });
+
+  let newestFirst = true;
+  const sortToggle = document.getElementById('sort-toggle');
+  const shelf = document.getElementById('shelf');
+  sortToggle?.addEventListener('click', () => {
+    newestFirst = !newestFirst;
+    sortToggle.textContent = newestFirst ? 'Sort: Newest first' : 'Sort: Reading order';
+    if (!shelf) return;
+    const children = Array.from(shelf.children) as HTMLElement[];
+    children.sort((a, b) => {
+      const an = Number(a.querySelector('.cover-link')?.getAttribute('aria-label')?.match(/essay (\d+)/)?.[1] ?? 0);
+      const bn = Number(b.querySelector('.cover-link')?.getAttribute('aria-label')?.match(/essay (\d+)/)?.[1] ?? 0);
+      return newestFirst ? bn - an : an - bn;
+    });
+    children.forEach((child) => shelf.appendChild(child));
+  });
+</script>

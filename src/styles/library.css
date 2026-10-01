@@ -1,0 +1,160 @@
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource-variable/source-serif-4";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+:root {
+  /* Paper & ink */
+  --paper:        #F3EFE6;
+  --paper-raised: #F8F5EE;
+  --paper-sunk:   #E9E4D8;
+  --ink:          #1C1B18;
+  --ink-soft:     #4A4740;
+  --ink-faint:    #8A857A;
+  --rule:         #D6D0C2;
+
+  /* Series colors */
+  --truth:        #24364A;
+  --truth-ink:    #E8EDF2;
+  --beauty:       #6E2A2A;
+  --beauty-ink:   #F4E6E1;
+  --goodness:     #3F4A2B;
+  --goodness-ink: #ECEFE1;
+  --standalone:   #2E2C29;
+  --standalone-ink:#EEEAE2;
+
+  /* Accent */
+  --accent:       #B5562B;
+  --accent-soft:  #B5562B26;
+
+  /* Shadows */
+  --shadow-rest:  0 1px 1px #1C1B1810, 0 4px 10px -4px #1C1B1822;
+  --shadow-lift:  0 2px 2px #1C1B1812, 0 18px 36px -12px #1C1B1840;
+
+  /* Type */
+  --font-display: "Instrument Serif", "Times New Roman", serif;
+  --font-text:    "Source Serif 4 Variable", Georgia, serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, monospace;
+
+  --step--1: clamp(0.78rem, 0.76rem + 0.10vw, 0.84rem);
+  --step-0:  clamp(1.06rem, 1.02rem + 0.20vw, 1.20rem);
+  --step-1:  clamp(1.25rem, 1.18rem + 0.35vw, 1.50rem);
+  --step-2:  clamp(1.60rem, 1.45rem + 0.70vw, 2.10rem);
+  --step-3:  clamp(2.20rem, 1.90rem + 1.40vw, 3.20rem);
+  --step-4:  clamp(3.00rem, 2.40rem + 3.00vw, 5.60rem);
+
+  /* Space */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 72px;
+  --space-9: 112px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --max:    1280px;
+  --radius-cover: 2px 4px 4px 2px;
+
+  /* Motion */
+  --ease-out:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-1: 150ms;
+  --dur-2: 260ms;
+  --dur-3: 400ms;
+  --dur-4: 560ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:        #151412;
+    --paper-raised: #1D1C19;
+    --paper-sunk:   #0F0E0D;
+    --ink:          #ECE7DC;
+    --ink-soft:     #B6B0A3;
+    --ink-faint:    #7B766C;
+    --rule:         #2E2C28;
+    --accent:       #D9774A;
+    --accent-soft:  #D9774A2E;
+    --shadow-rest:  0 1px 1px #00000040, 0 4px 10px -4px #00000060;
+    --shadow-lift:  0 2px 2px #00000050, 0 18px 36px -12px #00000090;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:        #151412;
+  --paper-raised: #1D1C19;
+  --paper-sunk:   #0F0E0D;
+  --ink:          #ECE7DC;
+  --ink-soft:     #B6B0A3;
+  --ink-faint:    #7B766C;
+  --rule:         #2E2C28;
+  --accent:       #D9774A;
+  --accent-soft:  #D9774A2E;
+  --shadow-rest:  0 1px 1px #00000040, 0 4px 10px -4px #00000060;
+  --shadow-lift:  0 2px 2px #00000050, 0 18px 36px -12px #00000090;
+}
+
+.lib { background: var(--paper); color: var(--ink); }
+
+.lib * { box-sizing: border-box; }
+
+.lib {
+  font-family: var(--font-text);
+  font-optical-sizing: auto;
+  font-size: var(--step-0);
+  line-height: 1.6;
+  font-variant-numeric: oldstyle-nums;
+  hanging-punctuation: first;
+  text-wrap: pretty;
+  min-height: 100vh;
+}
+
+.lib ::selection { background: var(--accent-soft); color: var(--ink); }
+
+.lib h1, .lib h2, .lib h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  margin: 0;
+}
+
+.lib .mono {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.lib .container {
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.lib a { color: inherit; text-decoration: none; }
+
+.lib .prose a {
+  color: var(--ink);
+  text-underline-offset: 0.2em;
+  text-decoration: underline 1px var(--accent);
+  transition: text-decoration-thickness var(--dur-1) ease;
+}
+.lib .prose a:hover { text-decoration-thickness: 2px; }
+
+.lib .skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+  z-index: 100;
+}
+.lib .skip-link:focus { left: var(--space-4); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lib * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

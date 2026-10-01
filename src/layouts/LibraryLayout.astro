@@ -1,0 +1,232 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/library.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = 'The Independent Variable — essays on what makes a man fully alive.' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <ClientRouter />
+</head>
+<body class="lib">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header id="site-header">
+    <div class="container header-inner">
+      <a class="wordmark" href="/library">The <em>Independent</em> Variable</a>
+      <nav class="mono main-nav" aria-label="Library navigation">
+        <a href="/library">Library</a>
+        <a href="/library/series">Series</a>
+        <a href="/library/about">About</a>
+        <a href="https://daviswhiting.substack.com/?utm_campaign=profile_chips" target="_blank" rel="noopener">Subscribe ↗</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" type="button"></button>
+      </nav>
+      <button class="mono menu-button" id="menu-button" type="button" aria-expanded="false">Menu</button>
+    </div>
+  </header>
+
+  <div class="mobile-sheet" id="mobile-sheet" hidden>
+    <a href="/library">Library</a>
+    <a href="/library/series">Series</a>
+    <a href="/library/about">About</a>
+    <a href="https://daviswhiting.substack.com/?utm_campaign=profile_chips" target="_blank" rel="noopener">Subscribe ↗</a>
+  </div>
+
+  <main id="main">
+    <slot />
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <a class="wordmark small" href="/library">The Independent Variable</a>
+      <nav class="mono footer-nav" aria-label="Footer navigation">
+        <a href="/library">Library</a>
+        <a href="/library/series">Series</a>
+        <a href="/library/about">About</a>
+        <a href="/">Back to daviswhiting.com</a>
+      </nav>
+    </div>
+    <p class="mono copyright container">© 2026 Davis Whiting</p>
+  </footer>
+
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch" result="noise" />
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0" />
+    </filter>
+  </svg>
+
+  <style>
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0.035;
+      mix-blend-mode: multiply;
+      background: transparent url(#noiseFilter);
+    }
+    :root[data-theme="dark"] .noise { opacity: 0.05; mix-blend-mode: screen; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .noise { opacity: 0.05; mix-blend-mode: screen; }
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .noise { display: none; }
+    }
+
+    #site-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--paper);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid transparent;
+      transition: border-color 200ms ease;
+    }
+    #site-header.scrolled { border-bottom-color: var(--rule); }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .wordmark {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+    }
+    .wordmark.small { font-size: 1.05rem; }
+
+    .main-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+    }
+    .main-nav a {
+      position: relative;
+      padding-left: var(--space-3);
+    }
+    .main-nav a[aria-current="page"]::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+    }
+
+    .theme-toggle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid var(--ink-faint);
+      background: linear-gradient(90deg, var(--ink) 50%, transparent 50%);
+      cursor: pointer;
+      transition: transform 400ms var(--ease-in-out);
+      padding: 0;
+    }
+    .theme-toggle:hover { transform: rotate(180deg); }
+
+    .menu-button { display: none; background: none; border: none; cursor: pointer; }
+
+    .mobile-sheet {
+      position: fixed;
+      inset: 64px 0 0 0;
+      background: var(--paper);
+      z-index: 39;
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-6) var(--gutter);
+      gap: var(--space-5);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transform: translateY(-100%);
+      transition: transform 320ms var(--ease-in-out);
+    }
+    .mobile-sheet.open { transform: translateY(0); }
+    .mobile-sheet a {
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+    .mobile-sheet.open a { opacity: 1; transform: translateY(0); }
+    .mobile-sheet.open a:nth-child(1) { transition-delay: 0ms; }
+    .mobile-sheet.open a:nth-child(2) { transition-delay: 40ms; }
+    .mobile-sheet.open a:nth-child(3) { transition-delay: 80ms; }
+    .mobile-sheet.open a:nth-child(4) { transition-delay: 120ms; }
+
+    @media (max-width: 640px) {
+      .main-nav { display: none; }
+      .menu-button { display: block; }
+    }
+
+    footer {
+      border-top: 1px solid var(--rule);
+      padding-block: var(--space-8);
+      margin-top: var(--space-9);
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .footer-nav { display: flex; gap: var(--space-5); }
+    .copyright { margin-top: var(--space-6); color: var(--ink-faint); }
+  </style>
+
+  <script>
+    const header = document.getElementById('site-header');
+    const onScroll = () => {
+      if (!header) return;
+      header.classList.toggle('scrolled', window.scrollY > 8);
+    };
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    const menuButton = document.getElementById('menu-button');
+    const sheet = document.getElementById('mobile-sheet');
+    menuButton?.addEventListener('click', () => {
+      const isOpen = sheet?.classList.toggle('open');
+      sheet?.toggleAttribute('hidden', !isOpen);
+      menuButton.setAttribute('aria-expanded', String(!!isOpen));
+    });
+
+    const themeToggle = document.getElementById('theme-toggle');
+    function currentTheme() {
+      return document.documentElement.getAttribute('data-theme');
+    }
+    themeToggle?.addEventListener('click', () => {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = currentTheme();
+      let next;
+      if (theme === 'dark') next = 'light';
+      else if (theme === 'light') next = 'dark';
+      else next = prefersDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('iv-theme', next); } catch {}
+    });
+    try {
+      const saved = localStorage.getItem('iv-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+    } catch {}
+  </script>
+</body>
+</html>

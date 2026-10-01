@@ -1,0 +1,66 @@
+---
+import LibraryLayout from '../../layouts/LibraryLayout.astro';
+---
+<LibraryLayout title="About — The Independent Variable">
+  <section class="about container">
+    <div class="portrait-slot" aria-hidden="true"></div>
+    <div class="bio">
+      <h1>About</h1>
+      <p>The Independent Variable is a running attempt to work out what it means for a man to be fully alive — taking St. Irenaeus's line, "the glory of God is man fully alive," as the question and working through it one essay at a time, in public, imperfectly.</p>
+      <p>Everything here is written by Davis Whiting. It's also posted to Substack, where you can subscribe to get new essays by email.</p>
+
+      <dl class="mono list">
+        <div class="list-row">
+          <dt>Currently reading</dt>
+          <dd>See the <a href="/bookshelf.html">Bookshelf</a>.</dd>
+        </div>
+        <div class="list-row">
+          <dt>Writing</dt>
+          <dd><a href="https://daviswhiting.substack.com/?utm_campaign=profile_chips" target="_blank" rel="noopener">The Independent Variable ↗</a></dd>
+        </div>
+        <div class="list-row">
+          <dt>Elsewhere</dt>
+          <dd>
+            <a href="#">Lacrosse Theory</a> ·
+            <a href="#">Whiting Enterprises</a> ·
+            <a href="https://daviswhiting.substack.com/?utm_campaign=profile_chips" target="_blank" rel="noopener">Substack ↗</a>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+</LibraryLayout>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-7);
+    padding-block: var(--space-9) var(--space-8);
+  }
+  @media (min-width: 641px) {
+    .about { grid-template-columns: 280px 1fr; }
+  }
+
+  .portrait-slot {
+    aspect-ratio: 3 / 4;
+    background: var(--paper-sunk);
+    border: 1px solid var(--rule);
+    filter: grayscale(1);
+    mix-blend-mode: multiply;
+  }
+
+  .bio h1 { font-size: var(--step-3); margin-bottom: var(--space-5); }
+  .bio p { margin: 0 0 var(--space-4); max-width: 60ch; }
+
+  .list { margin-top: var(--space-7); }
+  .list-row {
+    display: flex;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--rule);
+  }
+  .list-row dt { width: 14ch; flex-shrink: 0; }
+  .list-row dd { margin: 0; color: var(--ink); text-transform: none; letter-spacing: normal; font-family: var(--font-text); }
+  .list-row dd a { color: var(--accent); }
+</style>
